@@ -1,0 +1,36 @@
+LIBRARY ieee;
+USE ieee.std_logic_1164.all;
+
+ENTITY Lab02 IS
+	PORT (  SW : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
+			HEX0 : OUT STD_LOGIC_VECTOR(0 TO 6);
+			LEDG : OUT STD_LOGIC_VECTOR(0 TO 1)
+    );
+END Lab02;
+
+ARCHITECTURE Structure OF Lab02 IS
+	SIGNAL Sel : STD_LOGIC;
+	SIGNAL W, X, Y, Z : STD_LOGIC;
+BEGIN 
+	PROCESS(SW)
+	BEGIN	
+		CASE SW IS --
+				WHEN "0000" => HEX0 <= "0000001"; LEDG(0) <= '0';-- 1111110
+				WHEN "0001" => HEX0 <= "1001111"; LEDG(0) <= '0';-- 0110000
+				WHEN "0010" => HEX0 <= "0010010"; LEDG(0) <= '1';-- 1101101
+				WHEN "0011" => HEX0 <= "0000110"; LEDG(0) <= '1';-- 1111001
+				WHEN "0100" => HEX0 <= "1001100"; LEDG(0) <= '0';-- 0110011
+				WHEN "0101" => HEX0 <= "0100100"; LEDG(0) <= '1';-- 1011011
+				WHEN "0110" => HEX0 <= "0100000"; LEDG(0) <= '0';-- 1011111
+				WHEN "0111" => HEX0 <= "0001111"; LEDG(0) <= '1';-- 1110000
+				WHEN "1000" => HEX0 <= "0000000"; LEDG(0) <= '0';-- 1111111
+				WHEN "1001" => HEX0 <= "0000100"; LEDG(0) <= '0';-- 1111011
+				WHEN "1010" => HEX0 <= "0001000"; LEDG(0) <= '0';-- 1110111
+				WHEN "1011" => HEX0 <= "1100000"; LEDG(0) <= '1';-- 0011111
+				WHEN "1100" => HEX0 <= "0110001"; LEDG(0) <= '0';-- 1001110
+				WHEN "1101" => HEX0 <= "1000010"; LEDG(0) <= '1';-- 0111101
+				WHEN "1110" => HEX0 <= "0110000"; LEDG(0) <= '0';-- 1001111
+				WHEN "1111" => HEX0 <= "0111000"; LEDG(0) <= '0';-- 1000111
+			END CASE;
+		END PROCESS;
+END Structure;

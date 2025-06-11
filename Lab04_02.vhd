@@ -1,0 +1,72 @@
+LIBRARY ieee;
+USE ieee.std_logic_1164.all;
+USE ieee.std_logic_unsigned.all;
+
+ENTITY Lab04_02 IS
+    PORT (
+        SW   : IN STD_LOGIC_VECTOR(5 DOWNTO 0); -- A for 0-2, B for 3-5
+        HEX0 : OUT STD_LOGIC_VECTOR(0 TO 6);
+        HEX1 : OUT STD_LOGIC_VECTOR(0 TO 6);
+        LEDG : OUT STD_LOGIC_VECTOR(3 DOWNTO 0); 
+        KEY  : IN STD_LOGIC_VECTOR(1 DOWNTO 0)   -- 2-bit key input(Button)
+    );
+END Lab04_02;
+
+ARCHITECTURE Structure OF Lab04_02 IS
+    SIGNAL A, B : STD_LOGIC_VECTOR(2 DOWNTO 0);  -- 3-bit input signals
+    SIGNAL F    : STD_LOGIC_VECTOR(3 DOWNTO 0);  -- 4-bit sum result
+
+BEGIN
+    -- Compute the sum of (A, B)
+    PROCESS(SW)
+    BEGIN
+        A <= SW(2 DOWNTO 0);
+        B <= SW(5 DOWNTO 3);
+        F <= ("0" & A) + ("0" & B); -- Get the result of A+B (Unsigned)
+    END PROCESS;
+
+    -- Control LEDG and 7Seg
+    PROCESS(KEY, F)
+    BEGIN
+        CASE KEY IS
+            WHEN "00" => 
+                LEDG <= "0000"; -- Close LEDG
+                HEX0 <= (others => '1'); -- Close 7Seg
+                HEX1 <= (others => '1'); -- Close 7Seg
+
+            WHEN "10" => 
+                LEDG <= "0000"; -- Close LEDG
+                CASE F IS
+                    WHEN "0000" => HEX0 <= not("1111110"); HEX1 <= not("1111110"); -- 00
+                    WHEN "0001" => HEX0 <= not("0110000"); HEX1 <= not("1111110"); -- 01
+                    WHEN "0010" => HEX0 <= not("1101101"); HEX1 <= not("1111110"); -- 02
+                    WHEN "0011" => HEX0 <= not("1111001"); HEX1 <= not("1111110"); -- 03
+                    WHEN "0100" => HEX0 <= not("0110011"); HEX1 <= not("1111110"); -- 04
+                    WHEN "0101" => HEX0 <= not("1011011"); HEX1 <= not("1111110"); -- 05
+                    WHEN "0110" => HEX0 <= not("1011111"); HEX1 <= not("1111110"); -- 06
+                    WHEN "0111" => HEX0 <= not("1110000"); HEX1 <= not("1111110"); -- 07
+                    WHEN "1000" => HEX0 <= not("1111111"); HEX1 <= not("1111110"); -- 08
+                    WHEN "1001" => HEX0 <= not("1111011"); HEX1 <= not("1111110"); -- 09
+                    WHEN "1010" => HEX0 <= not("1111110"); HEX1 <= not("0110000"); -- 10
+                    WHEN "1011" => HEX0 <= not("0110000"); HEX1 <= not("0110000"); -- 11
+                    WHEN "1100" => HEX0 <= not("1101101"); HEX1 <= not("0110000"); -- 12
+                    WHEN "1101" => HEX0 <= not("1111001"); HEX1 <= not("0110000"); -- 13
+                    WHEN "1110" => HEX0 <= not("0110011"); HEX1 <= not("0110000"); -- 14
+                    WHEN "1111" => HEX0 <= not("1011011"); HEX1 <= not("0110000"); -- 15
+                    WHEN OTHERS => HEX0 <= (others => '1'); HEX1 <= (others => '1'); -- Close 7Seg
+                END CASE;
+
+            WHEN "01" => 
+                LEDG <= F;
+                HEX0 <= (others => '1'); -- Close 7Seg
+                HEX1 <= (others => '1'); -- Close 7Seg
+
+            -- Specially for both of the button been presssed, NOTHING should display
+            WHEN OTHERS => 
+                LEDG <= "0000"; -- Close LEDG
+                HEX0 <= (others => '1'); -- Close 7Seg
+                HEX1 <= (others => '1'); -- Close 7Seg
+        END CASE;
+    END PROCESS;
+
+END Structure;

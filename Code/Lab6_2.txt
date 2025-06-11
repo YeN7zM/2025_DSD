@@ -1,0 +1,48 @@
+LIBRARY ieee;
+USE ieee.std_logic_1164.all;
+USE ieee.numeric_std.all;
+
+ENTITY lab06_02 IS
+    PORT (
+          SW : IN SIGNED(7 DOWNTO 0);
+        LEDG : OUT STD_LOGIC_VECTOR(9 DOWNTO 0);  
+        KEY  : IN STD_LOGIC_VECTOR(2 DOWNTO 1)   
+    );
+END lab06_02;
+
+ARCHITECTURE Behavior OF lab06_02 IS    
+     SIGNAL LED    : STD_LOGIC_VECTOR(7 DOWNTO 0);
+      SIGNAL temp1  : SIGNED(7 DOWNTO 0);
+BEGIN
+
+--count 1 :singnal--
+    PROCESS(key)
+            VARIABLE SUM   : SIGNED(7 DOWNTO 0); 
+            VARIABLE OVR   : STD_LOGIC; 
+            VARIABLE TEMP  : SIGNED(7 DOWNTO 0);
+    BEGIN
+          IF (key(2)'EVENT AND key(2)='1') THEN
+                    temp1 <= SW(7 DOWNTO 0);
+                    TEMP := temp1 + SUM;
+                    IF(temp1(7) = SUM(7)) and ( SUM(7) /= TEMP(7))THEN
+                        OVR := '1';
+                    ELSE
+                        OVR := '0';
+                    END IF;
+                    SUM  := temp1 + SUM;
+             END IF;
+             IF ( key(1)='0') THEN
+                     SUM  := "00000000";
+                     TEMP := "00000000";
+                            OVR := '0';
+                     temp1 <= "00000000";
+             END IF;
+             IF (OVR = '1') THEN
+            LEDG(9) <= '1';
+             ELSE 
+            LEDG(9) <= '0';
+             END IF;
+             LEDG(7 DOWNTO 0) <= std_logic_vector(SUM);
+    END PROCESS;
+     
+END Behavior;

@@ -1,0 +1,91 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_ARITH.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+
+ENTITY lab72 IS
+PORT (
+    CLOCK_50 : IN STD_LOGIC;                     -- 50MHz 時脈輸入
+    KEY      : IN STD_LOGIC_VECTOR(1 DOWNTO 0);  -- 按鈕，使用 KEY[1] 作為重設
+    HEX3     : OUT STD_LOGIC_VECTOR(0 TO 6);     -- 顯示十位數
+    HEX2     : OUT STD_LOGIC_VECTOR(0 TO 6)      -- 顯示個位數
+);
+END lab72;
+
+ARCHITECTURE Behavioral OF lab72 IS
+    SIGNAL clk_div : INTEGER RANGE 0 TO 4999999 := 0;  -- 用於生成 5Hz 的計時器
+    SIGNAL clk_5Hz : STD_LOGIC := '0';                   -- 5Hz 的時脈信號
+    SIGNAL counter : INTEGER RANGE 0 TO 99 := 0;         -- 計數器
+    SIGNAL tens_digit : INTEGER RANGE 0 TO 9 := 0;       -- 十位數
+    SIGNAL ones_digit : INTEGER RANGE 0 TO 9 := 0;       -- 個位數
+BEGIN
+
+    -- 生成 5Hz 時脈
+    PROCESS (CLOCK_50)
+    BEGIN
+        IF (CLOCK_50'EVENT AND CLOCK_50 = '1') THEN
+            clk_div <= clk_div + 1;                       -- 計時器加 1
+            
+            IF clk_div = 4999999 THEN                     -- 每 50MHz 時脈下 10,000,000 次，即 5Hz
+                clk_div <= 0;                             -- 重置計時器
+                clk_5Hz <= NOT clk_5Hz;                   -- 反轉 5Hz 時脈
+            END IF;
+        END IF;
+    END PROCESS;
+
+    -- 計數器邏輯
+    PROCESS (clk_5Hz, KEY)
+    BEGIN
+        IF KEY(1) = '0' THEN                             -- 當按鈕按下（有效低）時重設
+            counter <= 0;                                -- 重設計數器
+        ELSIF rising_edge(clk_5Hz) THEN                 -- 在 5Hz 時脈的上升沿
+            IF counter < 99 THEN                         -- 計數範圍 0~99
+                counter <= counter + 1;                  -- 計數器加 1
+            ELSE
+                counter <= 0;                            -- 超過 99 時重設
+            END IF;
+        END IF;
+    END PROCESS;
+
+    -- 將計數器的值分解為十位數和個位數
+    PROCESS (counter)
+    BEGIN
+        tens_digit <= counter / 10;                      -- 十位數
+        ones_digit <= counter MOD 10;                    -- 個位數
+    END PROCESS;
+
+    -- 將十位數和個位數轉換為七段顯示器的顯示值
+    PROCESS (tens_digit, ones_digit)
+    BEGIN
+        -- 顯示十位數 HEX3
+        CASE tens_digit IS
+            WHEN 0 => HEX3 <= not "1111110";  -- 顯示 0
+            WHEN 1 => HEX3 <= not "0110000";  -- 顯示 1
+            WHEN 2 => HEX3 <= not "1101101";  -- 顯示 2
+            WHEN 3 => HEX3 <= not "1111001";  -- 顯示 3
+            WHEN 4 => HEX3 <= not "0110011";  -- 顯示 4
+            WHEN 5 => HEX3 <= not "1011011";  -- 顯示 5
+            WHEN 6 => HEX3 <= not "1011111";  -- 顯示 6
+            WHEN 7 => HEX3 <= not "1110000";  -- 顯示 7
+            WHEN 8 => HEX3 <= not "1111111";  -- 顯示 8
+            WHEN 9 => HEX3 <= not "1111011";  -- 顯示 9
+            WHEN OTHERS => HEX3 <= "0000000"; -- 關閉所有段
+        END CASE;
+
+        -- 顯示個位數 HEX2
+        CASE ones_digit IS
+            WHEN 0 => HEX2 <= not "1111110";  -- 顯示 0
+            WHEN 1 => HEX2 <= not "0110000";  -- 顯示 1
+            WHEN 2 => HEX2 <= not "1101101";  -- 顯示 2
+            WHEN 3 => HEX2 <= not "1111001";  -- 顯示 3
+            WHEN 4 => HEX2 <= not "0110011";  -- 顯示 4
+            WHEN 5 => HEX2 <= not "1011011";  -- 顯示 5
+            WHEN 6 => HEX2 <= not "1011111";  -- 顯示 6
+            WHEN 7 => HEX2 <= not "1110000";  -- 顯示 7
+            WHEN 8 => HEX2 <= not "1111111";  -- 顯示 8
+            WHEN 9 => HEX2 <= not "1111011";  -- 顯示 9
+            WHEN OTHERS => HEX2 <= "0000000"; -- 關閉所有段
+        END CASE;
+    END PROCESS;
+
+END Behavioral;

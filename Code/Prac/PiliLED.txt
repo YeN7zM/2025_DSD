@@ -1,0 +1,52 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_ARITH.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+
+ENTITY Lab_MidTest_PiliLED IS
+PORT (
+	 -- Initial CLOCK_RATE = 50M(5*10^7)
+    CLOCK_50       : IN STD_LOGIC;                     
+    KEY             : IN STD_LOGIC_VECTOR(1 DOWNTO 0);  
+    LEDG            : OUT STD_LOGIC_VECTOR(7 DOWNTO 0));
+END Lab_MidTest_PiliLED;
+
+ARCHITECTURE Behavioral OF Lab_MidTest_PiliLED IS
+    SIGNAL clk_div : INTEGER RANGE 0 TO 49999999 := 0; 
+    SIGNAL led_counter : INTEGER RANGE 0 TO 7 := 0;     
+	 SIGNAL SHIFT_TYPE : INTEGER RANGE 0 TO 1:= 1; -- set initial shift type to 1
+BEGIN
+    PROCESS (CLOCK_50, KEY)
+    BEGIN
+        IF KEY(1) = '0' THEN                         
+            led_counter <= 7;                        
+            clk_div <= 0;                            
+				SHIFT_TYPE <= 1;	-- if reset, change the shift_type to 1(SHIFT RIGHT)
+        ELSIF rising_edge(CLOCK_50) THEN                  
+            clk_div <= clk_div + 1;                  
+            -- 1Hz 
+            IF clk_div = 49999999 THEN                
+                clk_div <= 0;                     
+                -- LED SHIFT "RIGHT" FIRST
+                IF SHIFT_TYPE = 1 then
+						led_counter <= led_counter - 1;
+						IF led_counter = 0 then
+							led_counter <= 1;
+							SHIFT_TYPE <= 0;
+						end if;
+					 ELSIF SHIFT_TYPE = 0 then
+						led_counter <= led_counter + 1;
+						IF LED_counter = 7 then
+							LED_counter <= 6;
+							SHIFT_TYPE <= 1;
+						end if;
+                END IF;
+            END IF;
+        END IF;
+    END PROCESS;
+	PROCESS(LED_counter)
+	begin
+		 LEDG <= (others => '0');             -- 先將所有 LED 熄滅
+		 LEDG(led_counter) <= '1';             -- 點亮當前計數的 LED
+	end process;
+END Behavioral;

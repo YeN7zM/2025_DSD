@@ -1,0 +1,95 @@
+-- This projdct can use SW[0] to SW[3] to change the Clock Rate of LEDG blinking, the rate is according to the binary number of SW vector, and also show on 7Seg
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity Lab_Mid_CLKSpeed is
+	port(
+		CLOCK_50 : IN std_logic; -- REGULAR GRAMMAR
+		SW : IN std_LOGIC_VECTOR(3 downto 0);
+		LEDG : OUT std_LOGIC_VECTOR(7 downto 0);
+		HEX0 : OUT std_LOGIC_VECTOR(0 to 6);
+		HEX1 : OUT std_LOGIC_VECTOR(0 to 6));
+end entity;
+
+architecture arch of Lab_Mid_CLKSpeed is
+	component seg7
+		PORT ( bcd : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
+				 display : OUT STD_LOGIC_VECTOR(0 TO 6));
+	end component;
+	constant divisor : integer := 50000000;
+	signal count : integer range 0 to divisor := 0;
+	signal speed : integer;
+	signal SHIFT_CLK : std_logic;
+	signal led_counter : integer range 0 to 7 := 7;
+	signal H0, H1    : std_LOGIC_VECTOR(3 downto 0);
+begin
+	-- divide clock 
+	process(CLOCK_50, SW)
+	begin
+	speed <= divisor / (to_integer(unsigned(SW)) + 1 );
+	H1 <= std_logic_vector(to_signed(to_integer(unsigned(SW))/10, H1'length));
+   H0 <= std_logic_vector(to_signed(to_integer(unsigned(SW)) rem 10, H0'length)); 
+		if CLOCK_50'event and CLOCK_50 = '1' then
+			if count < speed / 2 - 1 then
+				count <= count + 1;
+			else
+				count <= 0;
+				SHIFT_CLK <= not SHIFT_CLK;
+			end if;
+		end if;
+	end process;
+	
+	-- LED shift circuit
+	process(SHIFT_CLK)
+	begin
+		if SHIFT_CLK'event and SHIFT_CLK = '1' then
+			if led_counter = 0 then
+				led_counter <= 7;
+			else 
+				led_counter <= led_counter - 1;
+			end if;
+		end if;
+	end process;
+	
+	-- LED display circuit
+	process(led_counter)
+	begin 
+		LEDG <= (others => '0');             
+      LEDG(led_counter) <= '1';            
+	end process;
+	digit1: seg7 PORT MAP( H1, HEX1);
+	digit0: seg7 PORT MAP( H0, HEX0); 
+end arch;
+
+
+-- component of 7 seg
+LIBRARY ieee;
+USE ieee.std_logic_1164.all;
+
+ENTITY seg7 IS
+	PORT ( bcd : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
+			 display : OUT STD_LOGIC_VECTOR(0 TO 6));
+END seg7;
+
+ARCHITECTURE Structure OF seg7 IS
+BEGIN	
+
+
+ PROCESS(bcd)
+ BEGIN 
+	CASE bcd IS -- 
+		WHEN "0000" => display <= (not"1111110"); 
+		WHEN "0001" => display <= (not"0110000"); 
+		WHEN "0010" => display <= (not"1101101"); 
+		WHEN "0011" => display <= (not"1111001");
+		WHEN "0100" => display <= (not"0110011"); 
+		WHEN "0101" => display <= (not"1011011"); 
+		WHEN "0110" => display <= (not"1011111"); 
+		WHEN "0111" => display <= (not"1110000");
+		WHEN "1000" => display <= (not"1111111");
+		WHEN "1001" => display <= (not"1111011");
+		WHEN OTHERS => display <= (not"0000000");
+	END CASE;
+ END PROCESS;
+END Structure;

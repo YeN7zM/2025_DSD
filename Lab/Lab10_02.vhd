@@ -26,20 +26,20 @@ architecture arch of Lab10_02 is
       clk    : IN  STD_LOGIC;  --input clock
       button : IN  STD_LOGIC;  --input signal to be debounced
       result : OUT STD_LOGIC); --debounced signal
-    END COMPONENT;
+	 END COMPONENT;
   
 signal RESET, LCM_CLK:std_logic;
 signal COUNTER:integer range 0 to 41;
 TYPE DDRAM IS ARRAY(0 to 15) OF std_logic_vector(7 downto 0);
-signal LINE1:DDRAM:= (x"20", x"20", x"20", x"20", x"44", x"31", x"30", x"31", x"38", x"36", x"31", x"34", x"20", x"20", x"20", x"20");
-signal LINE_TEMP:DDRAM:= (x"20", x"20", x"20", x"20", x"44", x"31", x"30", x"31", x"38", x"36", x"31", x"34", x"20", x"20", x"20", x"20");
+signal LINE1:DDRAM:= (x"44", x"31", x"30", x"31", x"38", x"36", x"31", x"34", x"20", x"20", x"20", x"20",x"20", x"20", x"20", x"20");
+signal LINE_TEMP:DDRAM:= (x"44", x"31", x"30", x"31", x"38", x"36", x"31", x"34", x"20", x"20", x"20", x"20",x"20", x"20", x"20", x"20");
 signal LINE2:DDRAM:=(x"20",x"20",x"20",x"20",x"20",x"20",x"20",x"20",x"20",x"20",x"20",x"20",x"20",x"20",x"20",x"20");
 signal LINE_EMP:DDRAM:=(x"20",x"20",x"20",x"20",x"20",x"20",x"20",x"20",x"20",x"20",x"20",x"20",x"20",x"20",x"20",x"20");
 signal TEMP:std_logic_vector(7 downto 0);
 signal LCM_RS, LCM_RW, LCM_EN :std_logic;
 signal LCM_DB:std_logic_vector(7 downto 0);
-signal shift_counter: integer range 0 to 1:= 0; -- take shifr 2 for example
-signal L_R: std_logic;
+signal shift_counter: integer range 0 to 7; -- take shifr 2 for example
+signal L_R: std_logic:= '1';
 signal CLK_1khz, CLK_500hz, CLK_1hz:std_logic; 
 signal Buttons, shift_dir: std_logic_vector(1 downto 0);
 signal mode: std_LOGIC:= '1';
@@ -81,14 +81,20 @@ begin
 						for i in 14 downto 0 loop
 							LINE_TEMP(i+1)<=LINE_TEMP(i);
 						end loop;
+						if shift_counter = 0 theN
+							LINE_TEMP(0) <= x"20";
+						end if;
 						shift_counter <= shift_counter + 1;
 					else 
 						for i in 14 downto 0 loop
 							LINE_TEMP(i)<=LINE_TEMP(i+1);
 						end loop;
+						if shift_counter = 0 theN
+							LINE_TEMP(15) <= x"20";
+						end if;
 						shift_counter <= shift_counter + 1;
 					end if;
-					if shift_counter = 1 theN
+					if shift_counter = 7 theN
 						shift_counter <= 0;
 						L_R <= not L_R;
 					end if;
@@ -127,7 +133,7 @@ begin
 			when 6=>
 				LCM_DB<="00001100";		--on screen
 			when 7=>
-				LCM_DB<="00000110";		--entry mode set ----------------------	
+				LCM_DB<="00000110";		--entry mode set	
 			when 8=>
 				LCM_RS<='0';
 				LCM_DB<="11000000";		--set position 	
@@ -309,4 +315,3 @@ BEGIN
     END IF;
   END PROCESS;
 END logic;
-

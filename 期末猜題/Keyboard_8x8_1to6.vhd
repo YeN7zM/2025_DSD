@@ -1,5 +1,5 @@
 --todo -> 這個版本其他不會顯示對應的ASCII, 要重新調整reset邏輯
--- test git
+-- test git add
 LIBRARY ieee;
 USE ieee.std_logic_1164.all;
 USE ieee.numeric_std.all;

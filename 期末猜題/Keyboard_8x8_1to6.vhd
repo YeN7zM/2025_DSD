@@ -61,7 +61,7 @@ ARCHITECTURE behavior OF Keyboard_8x8_1to6  IS
     END COMPONENT;
   component seg7 
 		PORT ( 
-        show_stastus : IN STD_LOGIC;
+        show_status : IN STD_LOGIC;
         bcd : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
 				display : OUT STD_LOGIC_VECTOR(0 TO 6));
 	end component;
@@ -317,13 +317,13 @@ BEGIN
       END CASE;
     END IF;
 	  END PROCESS;
-			
+	-- Use ascii		
 	process(ascii, show_status)
 	begin
 		LEDG <= "0000000000";
 		LEDG(shift_number) <= '1';
-		H1 <= std_logic_vector(ascii);
-		H0 <= std_logic_vector(ascii); 
+		H1 <= std_logic_vector(ascii(7 downto 4));
+		H0 <= std_logic_vector(ascii(3 downto 0)); 
 		if show_status = '0' then
 			LEDG <= "0000000000";
 		end if ;
@@ -463,7 +463,7 @@ USE ieee.std_logic_1164.all;
 
 ENTITY seg7 IS
 	PORT (
-       show_stasus : IN STD_LOGIC;
+       show_status : IN STD_LOGIC;
        bcd : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
 			 display : OUT STD_LOGIC_VECTOR(0 TO 6));
 END seg7;
@@ -475,22 +475,24 @@ BEGIN
  PROCESS(bcd, show_status)
  BEGIN 
   if show_status = '1' then
-    CASE bcd IS -- 
-      WHEN "0000" => display <= (not"1111110"); 
-      WHEN "0001" => display <= (not"0110000"); 
-      WHEN "0010" => display <= (not"1101101"); 
-      WHEN "0011" => display <= (not"1111001");
-      WHEN "0100" => display <= (not"0110011"); 
-      WHEN "0101" => display <= (not"1011011"); 
-      WHEN "0110" => display <= (not"1011111"); 
-      WHEN "0111" => display <= (not"1110000");
-      WHEN "1000" => display <= (not"1111111");
-      WHEN "1001" => display <= (not"1111011");
-      WHEN "1010" => display <= (not"1101111");
-      WHEN "1011" => display <= (not"0001111");
-      WHEN "1100" => display <= (not"0001101");
-      WHEN "1101" => display <= (not"0111101");
-      WHEN "1111" => display <= (not"1000111");
+    CASE bcd IS 
+      WHEN "0000" => display <= (not"1111110"); --0
+      WHEN "0001" => display <= (not"0110000"); --1
+      WHEN "0010" => display <= (not"1101101"); --2
+      WHEN "0011" => display <= (not"1111001"); --3
+      WHEN "0100" => display <= (not"0110011"); --4
+      WHEN "0101" => display <= (not"1011011"); --5
+      WHEN "0110" => display <= (not"1011111"); --6
+      WHEN "0111" => display <= (not"1110000"); --7
+      WHEN "1000" => display <= (not"1111111"); --8
+      WHEN "1001" => display <= (not"1111011"); --9
+      WHEN "1010" => display <= (not"1101111"); --A
+      WHEN "1011" => display <= (not"0001111"); --b
+      WHEN "1100" => display <= (not"0001101"); --c
+      WHEN "1101" => display <= (not"0111101"); --d
+		WHEN "1110" => display <= (not"1001111"); --e
+      WHEN "1111" => display <= (not"1000111"); --F
+		WHEN OTHERS => display <= (not"0000000"); 
     END CASE;
   else
     display <= not("0000000");

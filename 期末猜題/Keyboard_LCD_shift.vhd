@@ -413,7 +413,6 @@ begin
 		if shift_type = '1' then       
 			TEMP<=LINE2(15);
 			for i in 14 downto 0 loop
-				LINE2(i+1)<=LINE2(i);
 			end loop;
 			LINE2(0)<=TEMP;
 		elsif shift_type = '0' then     

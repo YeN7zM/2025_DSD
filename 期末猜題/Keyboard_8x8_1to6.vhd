@@ -486,8 +486,8 @@ BEGIN
       WHEN "0111" => display <= (not"1110000"); --7
       WHEN "1000" => display <= (not"1111111"); --8
       WHEN "1001" => display <= (not"1111011"); --9
-      WHEN "1010" => display <= (not"1101111"); --A
-      WHEN "1011" => display <= (not"0001111"); --b
+      WHEN "1010" => display <= (not"1110111"); --A
+      WHEN "1011" => display <= (not"0011111"); --b
       WHEN "1100" => display <= (not"0001101"); --c
       WHEN "1101" => display <= (not"0111101"); --d
 		WHEN "1110" => display <= (not"1001111"); --e
